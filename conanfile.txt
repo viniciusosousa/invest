@@ -1,0 +1,7 @@
+[requires]
+sqlite3/3.34.0
+libcurl/7.74.0
+ncurses/6.2
+
+[generators]
+cmake
