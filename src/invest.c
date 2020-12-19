@@ -4,7 +4,7 @@
 
 char* file_get_contents(char*);
 sqlite3* initDB();
-int adicionaPapel(sqlite3* db, char* codPapel[], float precoUnitario, int qtd)
+int adicionaPapel(sqlite3* db, char* codPapel[], float precoUnitario, int qtd);
 
 int main(int argc, char *argv[]){
 	sqlite3 *db = NULL;
