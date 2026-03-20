@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>Dashboard de Investimentos B3</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .card { background: #f5f5f5; padding: 20px; margin: 10px 0; border-radius: 8px; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+            .positive { color: green; }
+            .negative { color: red; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚀 Dashboard de Investimentos B3</h1>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📊 Análise Fundamentalista</h3>
+                    <a href="/fundamentalista">Ver Ranking Dividend Yield</a><br>
+                    <a href="/bazin">Filtro Método Bazin</a>
+                </div>
+                
+                <div class="card">
+                    <h3>📈 Análise Técnica</h3>
+                    <form action="/tecnica" method="post">
+                        <input type="text" name="ticker" placeholder="Ex: PETR4" required>
+                        <button type="submit">Analisar</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>💼 Gestão de Carteira</h3>
+                <a href="/carteira">Ver Carteira Atual</a><br>
+                <a href="/monitoramento">Monitoramento Tempo Real</a>
+            </div>
+            
+            <div class="card">
+                <h3>🎯 Sua Carteira Atual</h3>
+                <p><strong>Valor Total:</strong> R$ 74.925,00</p>
+                <p><strong>Dividend Yield Médio:</strong> 5.2%</p>
+                <p><strong>Melhor Performance:</strong> AMOB3 (+45.2%)</p>
+                <p><strong>Pior Performance:</strong> GFSA3 (-67.0%)</p>
+            </div>
+        </div>
+</body>
+</html>
+
