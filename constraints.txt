@@ -1,0 +1,4 @@
+matplotlib @ file:///home/builder/.termux-build/matplotlib/src/dist/matplotlib-3.10.8-cp313-cp313-android_aarch64.whl#sha256=a23cf2e77cbc9258d328366ef90d4b4b3aa98cfc37cfd43a2cc28a6cb4c13d82
+numpy @ file:///home/builder/.termux-build/python-numpy/src/dist/numpy-2.4.3-cp313-cp313-android_aarch64.whl#sha256=8ef35b7e7291aa8501ff0be8f354f3b089c4e0c08e9a905301b3551814601263
+pandas @ file:///home/builder/.termux-build/python-pandas/src/dist/pandas-3.0.1-cp313-cp313-android_aarch64.whl#sha256=7fc789e68c2f739e57cfaa0feb312196c7b89bc2a9cd1622aae8bfea4db4866c
+scipy @ file:///home/builder/.termux-build/python-scipy/src/dist/scipy-1.17.1-cp313-cp313-android_aarch64.whl#sha256=983a3b6ea280209902b8cc8c5c47d881237522224142999ddf2c8e084ffb2db3

@@ -1,4 +1,22 @@
+import sys          # ← estava faltando esta linha
 import pandas as pd
+# ── Mock numba (não instalado no Termux) ───────────
+# pandas_ta importa numba diretamente em _math.py.
+# O mock evita o ModuleNotFoundError sem perder funcionalidade —
+# apenas a aceleração JIT é desativada.
+if "numba" not in sys.modules:
+  from unittest.mock import MagicMock
+  _numba_mock = MagicMock()
+  # njit precisa retornar a própria função (decorator passthrough)
+  _numba_mock.njit = lambda f=None, **kw: (f if f else lambda fn: fn)
+  _numba_mock.prange = range
+  sys.modules["numba"]       = _numba_mock
+  sys.modules["numba.core"]  = MagicMock()
+  sys.modules["numba.typed"] = MagicMock()
+  sys.modules["numba.np"]    = MagicMock()
+  sys.modules["numba.np.numpy_support"] = MagicMock()
+# ───────────────────────────────────────────────────
+
 import pandas_ta as ta
 import numpy as np
 
