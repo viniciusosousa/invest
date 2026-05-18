@@ -49,11 +49,11 @@ class ColetorDados:
     def obter_dados_fundamentalistas(self) -> pd.DataFrame:
         """Obtém dados fundamentalistas de todas as empresas da B3 via fundamentus."""
         try:
-            dados = fd.get_resultado()
-
-            # Normaliza colunas percentuais para decimal
+            dados = fd.get_resultado_raw()
+            #Normaliza colunas percentuais para decimal
             colunas_pct = [
-                "Div.Yield", "Mrg Ebit", "Mrg. Líq.", "ROE", "ROIC", "Cresc. Rec.5a"
+                 ""
+            #    "Div.Yield", "Mrg Ebit", "Mrg. Líq.", "ROE", "ROIC", "Cresc. Rec.5a"
             ]
             for col in colunas_pct:
                 if col in dados.columns:

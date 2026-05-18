@@ -2,31 +2,30 @@
 import pandas as pd
 import numpy as np
 
-
-# Mapeamento centralizado: nome semântico → coluna real do fundamentus
-COL = {
-    "dy":         "dy",
-    "cotacao":    "cotacao",
-    "pl":         "pl",
-    "pvp":        "pvp",
-    "roe":        "roe",
-    "roic":       "roic",
-    "mrgebit":    "mrgebit",
-    "mrgliq":     "mrgliq",
-    "patrliq":    "patrliq",
-    "divbpatr":   "divbpatr",
-    "liq2m":      "liq2m",
-    "evebit":     "evebit",
-    "evebitda":   "evebitda",
-    "c5y":        "c5y",
-    "lpa":        "lpa",   # nem sempre disponível
-    "vpa":        "vpa",   # nem sempre disponível
-}
-
-
 def _col(df: pd.DataFrame, nome: str):
     """Retorna o nome de coluna correto, testando maiúsculas e minúsculas."""
-    candidatos = [nome, nome.lower(), nome.upper()]
+
+    # Mapeamento centralizado: nome semântico → coluna real do fundamentus
+    COL = {
+        "dy":         ["dy","Div.Yield"],
+        "cotacao":    ["cotacao","Cotação"],
+        "pl":         ["pl", "P/L"],
+        "pvp":        ["pvp","P/VP"],
+        "roe":        ["roe","ROE"],
+        "roic":       ["roic","ROIC"],
+        "mrgebit":    ["mrgebit","Mrg Ebit"],
+        "mrgliq":     ["mrgliq","Mrg. Líq."],
+        "patrliq":    ["patrliq","Patrim. Líq"],
+        "divbpatr":   ["divbpatr","Dív.Líq/ Patrim."],
+        "liq2m":      ["liq2m","Liq.2meses"],
+        "evebit":     ["evebit","EV/EBIT"],
+        "evebitda":   ["evebitda","EV/EBITDA"],
+        "c5y":        ["c5y","Cresc. Rec.5a"],
+        "l2m":        ["l2m","Liq.2meses"],
+        "lpa":        ["lpa","lpa"],   # nem sempre disponível
+        "vpa":        ["vpa","vpa"],   # nem sempre disponível
+    }
+    candidatos = [COL[nome][0], COL[nome][0].lower(), COL[nome][0].upper(), COL[nome][1], COL[nome][1].lower(), COL[nome][1].upper()]
     for c in candidatos:
         if c in df.columns:
             return c
@@ -37,12 +36,14 @@ class AnaliseFundamentalista:
 
     def __init__(self, dados_fundamentalistas: pd.DataFrame):
         self.dados = dados_fundamentalistas
+        divbpatr_col = _col(self.dados, "divbpatr")
+        self.dados[divbpatr_col] = pd.to_numeric(self.dados[divbpatr_col], errors='coerce')
 
     # ──────────────────────────────────────────────────────────
     # RANKING DIVIDEND YIELD
     # ──────────────────────────────────────────────────────────
 
-    def ranking_dividend_yield(self, top_n: int = 20) -> pd.DataFrame:
+    def ranking_dividend_yield(self, top_n: int = 20, min_dy: float = 0.03, min_roe: float = 0.05, min_patrliq: float = 0) -> pd.DataFrame:
         """Ranking das melhores pagadoras de dividendos."""
         if self.dados.empty:
             return pd.DataFrame()
@@ -50,18 +51,22 @@ class AnaliseFundamentalista:
         dy_col      = _col(self.dados, "dy")
         patrliq_col = _col(self.dados, "patrliq")
         roe_col     = _col(self.dados, "roe")
+        l2m_col     = _col(self.dados, "l2m")
 
         if dy_col is None:
             print(f"❌ Coluna DY não encontrada. Colunas disponíveis: {list(self.dados.columns)}")
             return pd.DataFrame()
 
-        filtros = self.dados[dy_col] > 0.03   # DY > 3%
+        filtros = self.dados[dy_col] > min_dy   # DY > min_dy
 
         if roe_col:
-            filtros &= self.dados[roe_col] > 0.05
+            filtros &= self.dados[roe_col] > min_roe
 
         if patrliq_col:
-            filtros &= self.dados[patrliq_col] > 0
+            filtros &= self.dados[patrliq_col] > min_patrliq
+
+        if l2m_col:
+            filtros &= self.dados[l2m_col] > 0  # Liquidez > 0
 
         boas_pagadoras = self.dados[filtros].copy()
         ranking = boas_pagadoras.sort_values(dy_col, ascending=False).head(top_n)
@@ -89,7 +94,7 @@ class AnaliseFundamentalista:
     # FILTRO MÉTODO BAZIN
     # ──────────────────────────────────────────────────────────
 
-    def filtrar_metodo_bazin(self) -> pd.DataFrame:
+    def filtrar_metodo_bazin(self, selic: float = 14.0, min_mrgebit: float = 0.10, min_roe: float = 0.10, min_patrliq: float = 0, max_divbpatr: float = 0.5 ) -> pd.DataFrame:
         """Aplica os critérios do Método Décio Bazin."""
         if self.dados.empty:
             return pd.DataFrame()
@@ -99,21 +104,24 @@ class AnaliseFundamentalista:
         roe_col     = _col(self.dados, "roe")
         patrliq_col = _col(self.dados, "patrliq")
         divbpatr_col = _col(self.dados, "divbpatr")
+        l2m_col     = _col(self.dados, "l2m")
 
         if dy_col is None:
             print("❌ Coluna DY não encontrada.")
             return pd.DataFrame()
 
-        filtros = self.dados[dy_col] > 0.06  # DY > 6%
-
+        filtros = self.dados[dy_col] > selic * 0.6  # 60% da Selic
+        
         if mrgebit_col:
-            filtros &= self.dados[mrgebit_col] > 0.10
+            filtros &= self.dados[mrgebit_col] > min_mrgebit
         if roe_col:
-            filtros &= self.dados[roe_col] > 0.10
+            filtros &= self.dados[roe_col] > min_roe
         if patrliq_col:
-            filtros &= self.dados[patrliq_col] > 0
+            filtros &= self.dados[patrliq_col] > min_patrliq
         if divbpatr_col:
-            filtros &= self.dados[divbpatr_col] < 0.5
+            filtros &= self.dados[divbpatr_col] < max_divbpatr
+        if l2m_col:
+            filtros &= self.dados[l2m_col] > 0  # Liquidez > 0
 
         empresas_bazin = self.dados[filtros].copy()
         empresas_bazin = empresas_bazin.sort_values(dy_col, ascending=False)
